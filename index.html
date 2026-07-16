@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LuxArs — Arte, diseño y tecnología en movimiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#110F14;
+    --bg-elevated:#19161D;
+    --panel:rgba(246,241,231,0.035);
+    --border:rgba(246,241,231,0.1);
+    --text-primary:#F6F1E7;
+    --text-secondary:#9691A0;
+    --amber:#E3A034;
+    --verdigris:#5FA394;
+    --rose:#C77B8B;
+    --grad-line: linear-gradient(90deg, var(--amber), var(--rose), var(--verdigris));
+    --grad-split: linear-gradient(115deg, var(--amber) 0%, var(--amber) 46%, var(--rose) 54%, var(--rose) 100%);
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--bg);
+    color:var(--text-primary);
+    font-family:var(--font-body);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+
+  a{ color:inherit; text-decoration:none; }
+
+  ::selection{ background:var(--fuchsia); color:#09090B; }
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--cyan);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+
+  .noise-overlay{
+    position:fixed; inset:0; pointer-events:none; z-index:9999;
+    opacity:0.035; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- NAVBAR ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px clamp(20px,5vw,64px);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    background:rgba(9,9,11,0.55);
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+
+  .logo{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:1.3rem;
+    letter-spacing:0.01em;
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo-dot{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--grad-line);
+    box-shadow:0 0 12px var(--fuchsia);
+  }
+
+  nav ul{
+    display:flex; gap:36px; list-style:none;
+  }
+  nav a{
+    font-size:0.92rem; color:var(--text-secondary);
+    font-weight:500;
+    position:relative;
+    transition:color .25s ease;
+  }
+  nav a::after{
+    content:''; position:absolute; left:0; bottom:-6px;
+    width:0; height:1px; background:var(--grad-line);
+    transition:width .3s ease;
+  }
+  nav a:hover{ color:var(--text-primary); }
+  nav a:hover::after{ width:100%; }
+
+  .nav-links{ display:flex; }
+
+  .btn-nav{
+    font-size:0.88rem; font-weight:600;
+    padding:10px 22px; border-radius:999px;
+    border:1px solid var(--border);
+    color:var(--text-primary);
+    transition:border-color .25s ease, background .25s ease;
+  }
+  .btn-nav:hover{ border-color:var(--fuchsia); background:rgba(217,70,239,0.08); }
+
+  .nav-toggle{ display:none; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    padding:120px clamp(20px,5vw,64px) 80px;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:'';
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 20%, rgba(227,160,52,0.13), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 75%, rgba(95,163,148,0.12), transparent 60%);
+    pointer-events:none;
+  }
+
+  .hero-grid{
+    position:relative;
+    width:100%;
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    align-items:center;
+    gap:40px;
+    max-width:1360px;
+    margin:0 auto;
+  }
+
+  .hero-copy{ position:relative; z-index:3; }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:10px;
+    font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--text-secondary);
+    padding:8px 16px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    margin-bottom:28px;
+    background:var(--panel);
+  }
+  .eyebrow-dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--amber);
+    box-shadow:0 0 8px var(--amber);
+    animation:pulse-dot 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-dot{ 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+  .hero h1{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:clamp(2.6rem, 5.6vw, 4.6rem);
+    line-height:1.04;
+    letter-spacing:-0.02em;
+    margin-bottom:26px;
+  }
+  .hero h1 .grad{
+    background:var(--grad-line);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .hero p.lead{
+    font-size:1.08rem;
+    line-height:1.7;
+    color:var(--text-secondary);
+    max-width:520px;
+    margin-bottom:40px;
+  }
+
+  .hero-ctas{ display:flex; gap:16px; flex-wrap:wrap; margin-bottom:56px; }
+
+  .btn{
+    position:relative;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:0.95rem;
+    padding:15px 30px;
+    border-radius:999px;
+    cursor:pointer;
+    border:none;
+    display:inline-flex; align-items:center; gap:8px;
+    transition:transform .3s ease, box-shadow .3s ease;
+    isolation:isolate;
+  }
+  .btn-primary{
+    background:var(--grad-split);
+    color:#15121A;
+    font-weight:700;
+  }
+  .btn-primary::after{
+    content:'';
+    position:absolute; inset:0;
+    border-radius:999px;
+    box-shadow:0 0 0 0 rgba(227,160,52,0);
+    transition:box-shadow .3s ease;
+    pointer-events:none;
+  }
+  .btn-primary:hover{
+    transform:translateY(-2px);
+  }
+  .btn-primary:hover::after{
+    box-shadow:
+      -3px 0 0 -1px var(--verdigris),
+      3px 0 0 -1px var(--rose),
+      0 10px 28px -6px rgba(199,123,139,0.4);
+  }
+  .btn-secondary{
+    background:transparent;
+    color:var(--text-primary);
+    border:1px solid var(--border);
+  }
+  .btn-secondary:hover{
+    border-color:var(--verdigris);
+    box-shadow:0 0 0 1px var(--verdigris) inset, 0 0 22px -8px rgba(95,163,148,0.5);
+    transform:translateY(-2px);
+  }
+
+  .hero-stats{
+    display:flex; gap:44px; flex-wrap:wrap;
+  }
+  .stat-value{
+    font-family:var(--font-display);
+    font-size:1.7rem; font-weight:700;
+  }
+  .stat-label{
+    font-size:0.82rem; color:var(--text-secondary); margin-top:2px;
+  }
+
+  .hero-canvas-wrap{
+    position:relative;
+    width:100%;
+    height:min(640px, 72vh);
+    z-index:2;
+  }
+  #hero-canvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+    cursor:grab;
+  }
+
+  @media (max-width: 900px){
+    .hero-grid{ grid-template-columns:1fr; }
+    .hero-canvas-wrap{
+      position:absolute; inset:0; height:100%; opacity:0.45; z-index:1;
+    }
+    .hero{ padding-top:110px; min-height:auto; padding-bottom:64px; }
+    .hero-copy{ padding-top:20px; }
+    .hero p.lead{ max-width:100%; }
+    .nav-links{ display:none; }
+  }
+
+  /* ---------- FEATURES ---------- */
+  .section{
+    padding:120px clamp(20px,5vw,64px);
+    max-width:1360px;
+    margin:0 auto;
+  }
+
+  .section-head{
+    max-width:640px;
+    margin-bottom:64px;
+  }
+  .section-head .eyebrow{ margin-bottom:20px; }
+  .section-head h2{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:clamp(1.9rem, 3.6vw, 2.9rem);
+    letter-spacing:-0.015em;
+    line-height:1.12;
+    margin-bottom:18px;
+  }
+  .section-head p{
+    color:var(--text-secondary);
+    font-size:1.02rem;
+    line-height:1.7;
+  }
+
+  .features-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:24px;
+  }
+  @media (max-width: 860px){
+    .features-grid{ grid-template-columns:1fr; }
+  }
+
+  .feature-card{
+    position:relative;
+    padding:36px 30px;
+    border-radius:20px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015));
+    border:1px solid var(--border);
+    overflow:hidden;
+    transition:transform .35s ease, border-color .35s ease;
+  }
+  .feature-card::before{
+    content:'';
+    position:absolute; inset:0;
+    padding:1px;
+    border-radius:20px;
+    background:var(--card-glow, linear-gradient(135deg, var(--violet), transparent 60%));
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    opacity:0.5;
+    pointer-events:none;
+  }
+  .feature-card:hover{
+    transform:translateY(-6px);
+    border-color:rgba(255,255,255,0.16);
+  }
+  .feature-card:nth-child(1){ --card-glow: linear-gradient(135deg, var(--amber), transparent 65%); }
+  .feature-card:nth-child(2){ --card-glow: linear-gradient(135deg, var(--rose), transparent 65%); }
+  .feature-card:nth-child(3){ --card-glow: linear-gradient(135deg, var(--verdigris), transparent 65%); }
+
+  .feature-icon{
+    width:46px; height:46px;
+    border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:26px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--border);
+  }
+  .feature-icon svg{ width:22px; height:22px; }
+
+  .feature-index{
+    font-family:var(--font-display);
+    font-size:0.78rem;
+    color:var(--text-secondary);
+    letter-spacing:0.08em;
+    margin-bottom:14px;
+    display:block;
+  }
+
+  .feature-card h3{
+    font-family:var(--font-display);
+    font-size:1.28rem;
+    font-weight:700;
+    margin-bottom:12px;
+    letter-spacing:-0.01em;
+  }
+  .feature-card p{
+    color:var(--text-secondary);
+    font-size:0.96rem;
+    line-height:1.65;
+  }
+
+  /* ---------- SHOWCASE STRIP ---------- */
+  .marquee-wrap{
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+    padding:26px 0;
+    overflow:hidden;
+    background:var(--bg-elevated);
+  }
+  .marquee{
+    display:flex;
+    gap:64px;
+    width:max-content;
+    animation:scroll-marquee 26s linear infinite;
+  }
+  @keyframes scroll-marquee{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-50%); }
+  }
+  .marquee span{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:1.1rem;
+    color:var(--text-secondary);
+    opacity:0.55;
+    white-space:nowrap;
+  }
+  .marquee span.accent{
+    background:var(--grad-line);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    opacity:1;
+  }
+
+  /* ---------- FINAL CTA ---------- */
+  .final-cta{
+    position:relative;
+    margin:60px clamp(20px,5vw,64px) 0;
+    padding:90px 40px;
+    border-radius:28px;
+    text-align:center;
+    background:radial-gradient(ellipse 80% 100% at 50% 0%, rgba(227,160,52,0.14), transparent 65%), var(--bg-elevated);
+    border:1px solid var(--border);
+    overflow:hidden;
+  }
+  .final-cta::after{
+    content:'';
+    position:absolute; left:50%; bottom:-40%; width:70%; height:60%;
+    transform:translateX(-50%);
+    background:radial-gradient(closest-side, rgba(199,123,139,0.2), transparent);
+    filter:blur(20px);
+    pointer-events:none;
+  }
+  .final-cta h2{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:clamp(2rem, 4.4vw, 3.2rem);
+    letter-spacing:-0.02em;
+    line-height:1.08;
+    max-width:720px;
+    margin:0 auto 20px;
+    position:relative;
+  }
+  .final-cta p{
+    color:var(--text-secondary);
+    max-width:480px;
+    margin:0 auto 40px;
+    font-size:1.02rem;
+    line-height:1.65;
+    position:relative;
+  }
+  .final-cta .hero-ctas{ justify-content:center; margin-bottom:0; position:relative; }
+
+  /* ---------- MODAL CONTACTO ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:1100;
+    display:flex; align-items:center; justify-content:center;
+    padding:20px; background:rgba(7,8,12,0.82);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    opacity:0; pointer-events:none; transition:opacity .25s ease;
+  }
+  .modal-backdrop.is-open{ opacity:1; pointer-events:auto; }
+  .modal-card{
+    position:relative; width:min(560px, 100%);
+    padding:32px; border-radius:24px;
+    background:linear-gradient(145deg, rgba(25,22,29,0.98), rgba(17,15,20,0.97));
+    border:1px solid var(--border);
+    box-shadow:0 30px 80px rgba(0,0,0,0.35);
+    transform:translateY(12px); transition:transform .25s ease;
+  }
+  .modal-backdrop.is-open .modal-card{ transform:translateY(0); }
+  .modal-close{
+    position:absolute; top:16px; right:16px; width:38px; height:38px;
+    border:none; border-radius:50%; cursor:pointer;
+    background:rgba(255,255,255,0.06); color:var(--text-primary);
+    font-size:1.1rem;
+  }
+  .modal-card h3{
+    font-family:var(--font-display); font-size:1.45rem; margin:8px 0 10px;
+  }
+  .modal-card p{ color:var(--text-secondary); line-height:1.65; margin-bottom:20px; }
+  .contact-form{ display:grid; gap:14px; }
+  .form-field{ display:grid; gap:8px; }
+  .form-field span{ font-size:0.9rem; color:var(--text-secondary); }
+  .form-field input, .form-field textarea{
+    width:100%; padding:13px 14px; border-radius:14px;
+    border:1px solid var(--border); background:rgba(255,255,255,0.04);
+    color:var(--text-primary); font:inherit;
+  }
+  .form-field textarea{ min-height:110px; resize:vertical; }
+  .form-field input:focus, .form-field textarea:focus{ outline:none; border-color:var(--verdigris); }
+  .form-actions{ display:flex; justify-content:flex-end; margin-top:6px; }
+  .form-success{
+    margin-top:16px; padding:12px 14px; border-radius:14px;
+    background:rgba(95,163,148,0.14); border:1px solid rgba(95,163,148,0.3);
+    color:#dff2eb; font-size:0.95rem;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    padding:56px clamp(20px,5vw,64px) 40px;
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:20px;
+    border-top:1px solid var(--border);
+    margin-top:80px;
+  }
+  footer .logo{ font-size:1.1rem; }
+  .footer-links{ display:flex; gap:28px; list-style:none; }
+  .footer-links a{ color:var(--text-secondary); font-size:0.88rem; transition:color .2s ease; }
+  .footer-links a:hover{ color:var(--text-primary); }
+  .footer-copy{ color:var(--text-secondary); font-size:0.82rem; }
+
+</style>
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+
+<header>
+  <a href="#" class="logo"><span class="logo-dot"></span>LuxArs</a>
+  <nav class="nav-links">
+    <ul>
+      <li><a href="#explorar">Explorar</a></li>
+      <li><a href="#artistas">Artistas</a></li>
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+  </nav>
+  <a href="#contacto" class="btn-nav">Crear cuenta</a>
+</header>
+
+<section class="hero" id="explorar">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow"><span class="eyebrow-dot"></span>Arte · Diseño · Tecnología</span>
+      <h1>La luz, curada por quienes <span class="grad">saben verla.</span></h1>
+      <p class="lead">LuxArs conecta a marcas y creadores con una red curada de fotógrafos y artistas visuales, respaldada por herramientas de reserva, licenciamiento y entrega pensadas para el ritmo de un estudio real.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary" data-open-contact>Explorar artistas →</button>
+        <button class="btn btn-secondary" data-open-contact>Publicar un proyecto</button>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-value">1,200+</div>
+          <div class="stat-label">artistas verificados</div>
+        </div>
+        <div>
+          <div class="stat-value">38</div>
+          <div class="stat-label">ciudades activas</div>
+        </div>
+        <div>
+          <div class="stat-value">4.9/5</div>
+          <div class="stat-label">satisfacción promedio</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-canvas-wrap">
+      <canvas id="hero-canvas" aria-hidden="true"></canvas>
+    </div>
+  </div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee" id="marquee">
+    <span>RETRATO</span>
+    <span class="accent">EDITORIAL</span>
+    <span>PRODUCTO</span>
+    <span class="accent">MOVIMIENTO</span>
+    <span>ARQUITECTURA</span>
+    <span class="accent">CAMPAÑA</span>
+    <span>RETRATO</span>
+    <span class="accent">EDITORIAL</span>
+    <span>PRODUCTO</span>
+    <span class="accent">MOVIMIENTO</span>
+    <span>ARQUITECTURA</span>
+    <span class="accent">CAMPAÑA</span>
+  </div>
+</div>
+
+<section class="section" id="servicios">
+  <div class="section-head">
+    <span class="eyebrow"><span class="eyebrow-dot"></span>Cómo funciona</span>
+    <h2>Un estudio completo, sin las fricciones de uno.</h2>
+    <p>Desde el primer contacto hasta la entrega final, LuxArs organiza cada pieza del proceso creativo para que el talento se enfoque en producir, no en administrar.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#EFC280" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+      <span class="feature-index">Curaduría</span>
+      <h3>Artistas verificados a mano</h3>
+      <p>Cada perfil pasa por revisión de portafolio antes de publicarse: sin ruido, sin cuentas inactivas, solo trabajo con criterio.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#DA9AA6" stroke-width="1.6"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+      </div>
+      <span class="feature-index">Reservas</span>
+      <h3>Agenda que se ajusta sola</h3>
+      <p>Disponibilidad en tiempo real, contratos generados automáticamente y recordatorios que evitan reprogramaciones de último minuto.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8FC3B4" stroke-width="1.6"><path d="M12 3v13m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+      </div>
+      <span class="feature-index">Entrega</span>
+      <h3>Licencias y archivos, claros</h3>
+      <p>Descarga en alta resolución con términos de uso definidos desde el inicio: sin correos cruzados ni versiones perdidas.</p>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta" id="contacto">
+  <h2>Tu próximo proyecto visual empieza con la persona correcta.</h2>
+  <p>Publica tu brief hoy y recibe propuestas de artistas afines a tu estética en menos de 48 horas.</p>
+  <div class="hero-ctas">
+    <button class="btn btn-primary" data-open-contact>Publicar un proyecto →</button>
+    <button class="btn btn-secondary" data-open-contact>Hablar con el equipo</button>
+  </div>
+</section>
+
+<div class="modal-backdrop" id="contact-modal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-close" type="button" aria-label="Cerrar">×</button>
+    <h3 id="modal-title">Publica tu proyecto</h3>
+    <p>Cuéntanos brevemente qué necesitas y nos pondremos en contacto contigo para preparar la mejor propuesta.</p>
+    <form class="contact-form" id="contact-form">
+      <div class="form-field">
+        <span>Nombre</span>
+        <input type="text" name="name" placeholder="Tu nombre" required>
+      </div>
+      <div class="form-field">
+        <span>Email</span>
+        <input type="email" name="email" placeholder="tu@email.com" required>
+      </div>
+      <div class="form-field">
+        <span>Proyecto</span>
+        <textarea name="message" placeholder="Describe tu idea, deadline o tipo de arte que necesitas"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Enviar solicitud</button>
+      </div>
+      <div class="form-success" id="form-success" hidden>Gracias, tu solicitud quedó lista. Se abrirá tu cliente de correo para enviarnos la propuesta.</div>
+    </form>
+  </div>
+</div>
+
+<footer>
+  <a href="#" class="logo"><span class="logo-dot"></span>LuxArs</a>
+  <ul class="footer-links">
+    <li><a href="#explorar">Explorar</a></li>
+    <li><a href="#artistas">Artistas</a></li>
+    <li><a href="#servicios">Servicios</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
+  <span class="footer-copy">© 2026 LuxArs. Todos los derechos reservados.</span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var canvas = document.getElementById('hero-canvas');
+  if (!canvas || typeof THREE === 'undefined') return;
+
+  var wrap = canvas.parentElement;
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------- Simplex noise (3D) ---------------- */
+  var SimplexNoise = (function(){
+    var grad3 = [
+      [1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],
+      [1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],
+      [0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]
+    ];
+    var p = [];
+    for (var i=0;i<256;i++) p[i] = Math.floor(Math.random()*256);
+    var perm = new Array(512);
+    var gradP = new Array(512);
+    for(var i=0;i<512;i++){
+      perm[i] = p[i & 255];
+      gradP[i] = grad3[perm[i] % 12];
+    }
+    function dot3(g,x,y,z){ return g[0]*x + g[1]*y + g[2]*z; }
+    var F3 = 1/3, G3 = 1/6;
+    function noise3D(xin,yin,zin){
+      var n0,n1,n2,n3;
+      var s = (xin+yin+zin)*F3;
+      var i = Math.floor(xin+s), j = Math.floor(yin+s), k = Math.floor(zin+s);
+      var t = (i+j+k)*G3;
+      var X0=i-t, Y0=j-t, Z0=k-t;
+      var x0=xin-X0, y0=yin-Y0, z0=zin-Z0;
+      var i1,j1,k1,i2,j2,k2;
+      if(x0>=y0){
+        if(y0>=z0){ i1=1;j1=0;k1=0; i2=1;j2=1;k2=0; }
+        else if(x0>=z0){ i1=1;j1=0;k1=0; i2=1;j2=0;k2=1; }
+        else { i1=0;j1=0;k1=1; i2=1;j2=0;k2=1; }
+      } else {
+        if(y0<z0){ i1=0;j1=0;k1=1; i2=0;j2=1;k2=1; }
+        else if(x0<z0){ i1=0;j1=1;k1=0; i2=0;j2=1;k2=1; }
+        else { i1=0;j1=1;k1=0; i2=1;j2=1;k2=0; }
+      }
+      var x1=x0-i1+G3, y1=y0-j1+G3, z1=z0-k1+G3;
+      var x2=x0-i2+2*G3, y2=y0-j2+2*G3, z2=z0-k2+2*G3;
+      var x3=x0-1+3*G3, y3=y0-1+3*G3, z3=z0-1+3*G3;
+      var ii=i&255, jj=j&255, kk=k&255;
+      var gi0 = gradP[ii+perm[jj+perm[kk]]];
+      var gi1 = gradP[ii+i1+perm[jj+j1+perm[kk+k1]]];
+      var gi2 = gradP[ii+i2+perm[jj+j2+perm[kk+k2]]];
+      var gi3 = gradP[ii+1+perm[jj+1+perm[kk+1]]];
+      var t0 = 0.6 - x0*x0 - y0*y0 - z0*z0;
+      n0 = t0<0 ? 0 : (t0*=t0, t0*t0*dot3(gi0,x0,y0,z0));
+      var t1 = 0.6 - x1*x1 - y1*y1 - z1*z1;
+      n1 = t1<0 ? 0 : (t1*=t1, t1*t1*dot3(gi1,x1,y1,z1));
+      var t2 = 0.6 - x2*x2 - y2*y2 - z2*z2;
+      n2 = t2<0 ? 0 : (t2*=t2, t2*t2*dot3(gi2,x2,y2,z2));
+      var t3 = 0.6 - x3*x3 - y3*y3 - z3*z3;
+      n3 = t3<0 ? 0 : (t3*=t3, t3*t3*dot3(gi3,x3,y3,z3));
+      return 32*(n0+n1+n2+n3);
+    }
+    return { noise3D: noise3D };
+  })();
+
+  var simplex = SimplexNoise;
+
+  /* ---------------- Scene setup ---------------- */
+  var scene = new THREE.Scene();
+
+  var camera = new THREE.PerspectiveCamera(45, wrap.clientWidth / wrap.clientHeight, 0.1, 100);
+  camera.position.set(0, 0, 6.4);
+
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+  renderer.setClearColor(0x000000, 0);
+
+  /* ----------- Cámara Profesional ----------- */
+  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.rotateSpeed = 0.8;
+  controls.zoomSpeed = 1.2;
+  controls.panSpeed = 0.8;
+  controls.enableZoom = true;
+  controls.enablePan = true;
+  controls.enableRotate = true;
+  controls.minDistance = 3;
+  controls.maxDistance = 10;
+  controls.maxPolarAngle = Math.PI;
+  controls.minPolarAngle = 0;
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 0.5;
+
+  /* ---------------- Geometry: deformable icosahedron ---------------- */
+  var detail = window.innerWidth < 700 ? 4 : 5;
+  var geometry = new THREE.IcosahedronGeometry(1.7, detail);
+  var posAttr = geometry.attributes.position;
+  var originalPositions = new Float32Array(posAttr.array.length);
+  originalPositions.set(posAttr.array);
+
+  var material = new THREE.MeshPhysicalMaterial({
+    color: 0xC9A876,
+    metalness: 0.4,
+    roughness: 0.13,
+    transmission: 1.0,
+    thickness: 1.4,
+    ior: 1.35,
+    clearcoat: 0.6,
+    clearcoatRoughness: 0.25,
+    envMapIntensity: 1.1,
+    iridescence: 0.3,
+    iridescenceIOR: 1.2,
+    reflectivity: 0.6,
+  });
+
+  var sphere = new THREE.Mesh(geometry, material);
+  scene.add(sphere);
+
+  /* subtle wireframe shell for extra dimensionality */
+  var wireGeo = new THREE.IcosahedronGeometry(1.74, 1);
+  var wireMat = new THREE.MeshBasicMaterial({ color: 0xC77B8B, wireframe: true, transparent: true, opacity: 0.06 });
+  var wireMesh = new THREE.Mesh(wireGeo, wireMat);
+  scene.add(wireMesh);
+
+  /* ---------------- Lights ---------------- */
+  var ambient = new THREE.AmbientLight(0xffffff, 0.25);
+  scene.add(ambient);
+
+  var lightAmber = new THREE.PointLight(0xE3A034, 42, 20, 2);
+  lightAmber.position.set(-4, 2.4, 3);
+  scene.add(lightAmber);
+
+  var lightRose = new THREE.PointLight(0xC77B8B, 38, 20, 2);
+  lightRose.position.set(3.6, -2, 2.6);
+  scene.add(lightRose);
+
+  var lightVerdigris = new THREE.PointLight(0x5FA394, 36, 20, 2);
+  lightVerdigris.position.set(0.5, 3.2, -3);
+  scene.add(lightVerdigris);
+
+  var lightFill = new THREE.PointLight(0xffffff, 8, 20, 2);
+  lightFill.position.set(0, -3, 4);
+  scene.add(lightFill);
+
+  /* ---------------- Interaction state ---------------- */
+  var mouse = { x: 0, y: 0 };
+  var targetMouse = { x: 0, y: 0 };
+  var rotTarget = { x: 0, y: 0 };
+  var rotCurrent = { x: 0, y: 0 };
+
+  function onPointerMove(clientX, clientY){
+    var rect = wrap.getBoundingClientRect();
+    var nx = ((clientX - rect.left) / rect.width) * 2 - 1;
+    var ny = ((clientY - rect.top) / rect.height) * 2 - 1;
+    targetMouse.x = Math.max(-1, Math.min(1, nx));
+    targetMouse.y = Math.max(-1, Math.min(1, ny));
+  }
+
+  window.addEventListener('mousemove', function(e){ onPointerMove(e.clientX, e.clientY); }, { passive: true });
+  window.addEventListener('touchmove', function(e){
+    if (e.touches && e.touches[0]) onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+
+  /* ---------------- Resize ---------------- */
+  function onResize(){
+    var w = wrap.clientWidth, h = wrap.clientHeight;
+    if (w === 0 || h === 0) return;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  }
+  window.addEventListener('resize', onResize);
+  onResize();
+
+  /* ---------------- Animation loop ---------------- */
+  var clock = new THREE.Clock();
+  var lerpFactor = 0.045;
+  var noiseSpeedBase = 0.12;
+
+  function lerp(a, b, t){ return a + (b - a) * t; }
+
+  function animate(){
+    requestAnimationFrame(animate);
+    var elapsed = clock.getElapsedTime();
+
+    /* smooth mouse easing */
+    mouse.x = lerp(mouse.x, targetMouse.x, lerpFactor);
+    mouse.y = lerp(mouse.y, targetMouse.y, lerpFactor);
+
+    /* rotation reacts to cursor position */
+    rotTarget.x = mouse.y * 0.35;
+    rotTarget.y = mouse.x * 0.55;
+    rotCurrent.x = lerp(rotCurrent.x, rotTarget.x, 0.06);
+    rotCurrent.y = lerp(rotCurrent.y, rotTarget.y, 0.06);
+
+    sphere.rotation.x = rotCurrent.x + elapsed * 0.06;
+    sphere.rotation.y = rotCurrent.y + elapsed * 0.09;
+    wireMesh.rotation.x = -rotCurrent.x * 0.6 + elapsed * 0.03;
+    wireMesh.rotation.y = -rotCurrent.y * 0.6 - elapsed * 0.04;
+
+    /* mouse distance from center drives deformation intensity + speed */
+    var mouseDist = Math.min(1, Math.sqrt(mouse.x*mouse.x + mouse.y*mouse.y));
+    var amplitude = 0.16 + mouseDist * 0.22;
+    var noiseSpeed = noiseSpeedBase + mouseDist * 0.18;
+    var timeFactor = elapsed * noiseSpeed;
+
+    if (!prefersReducedMotion){
+      var posArray = posAttr.array;
+      for (var i = 0; i < posArray.length; i += 3){
+        var ox = originalPositions[i], oy = originalPositions[i+1], oz = originalPositions[i+2];
+        var n = simplex.noise3D(ox * 1.1 + timeFactor, oy * 1.1 + timeFactor, oz * 1.1 + timeFactor);
+        var displacement = 1 + n * amplitude * 0.5;
+        posArray[i] = ox * displacement;
+        posArray[i+1] = oy * displacement;
+        posArray[i+2] = oz * displacement;
+      }
+      posAttr.needsUpdate = true;
+      geometry.computeVertexNormals();
+    }
+
+    /* orbiting lights for shifting reflections */
+    lightAmber.position.x = -4 + Math.sin(elapsed * 0.3) * 1.2;
+    lightAmber.position.y = 2.4 + Math.cos(elapsed * 0.25) * 0.8;
+    lightRose.position.x = 3.6 + Math.cos(elapsed * 0.28) * 1.1;
+    lightRose.position.z = 2.6 + Math.sin(elapsed * 0.22) * 1.3;
+    lightVerdigris.position.y = 3.2 + Math.sin(elapsed * 0.2) * 1.0;
+    lightVerdigris.position.z = -3 + Math.cos(elapsed * 0.24) * 1.2;
+
+    controls.update();
+    renderer.render(scene, camera);
+  }
+
+  animate();
+})();
+</script>
+
+<script>
+(function(){
+  "use strict";
+
+  var modal = document.getElementById('contact-modal');
+  var closeBtn = modal ? modal.querySelector('.modal-close') : null;
+  var form = document.getElementById('contact-form');
+  var success = document.getElementById('form-success');
+  var openButtons = document.querySelectorAll('[data-open-contact]');
+
+  function openModal(){
+    if (!modal) return;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    var firstInput = modal.querySelector('input, textarea');
+    if (firstInput) firstInput.focus();
+  }
+
+  function closeModal(){
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  if (openButtons) {
+    openButtons.forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        openModal();
+      });
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeModal);
+  }
+
+  if (modal) {
+    modal.addEventListener('click', function(e){
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && modal && modal.classList.contains('is-open')) closeModal();
+  });
+
+  if (form) {
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+
+      var data = new FormData(form);
+      var name = (data.get('name') || '').toString().trim();
+      var email = (data.get('email') || '').toString().trim();
+      var message = (data.get('message') || '').toString().trim();
+
+      var subject = encodeURIComponent('Nuevo proyecto - LuxArs');
+      var body = encodeURIComponent(
+        'Nombre: ' + name + '\n' +
+        'Email: ' + email + '\n\n' +
+        'Proyecto:\n' + message
+      );
+
+      window.location.href = 'mailto:hello@luxars.com?subject=' + subject + '&body=' + body;
+
+      if (success) {
+        success.hidden = false;
+        form.reset();
+      }
+
+      setTimeout(function(){
+        closeModal();
+      }, 1200);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
